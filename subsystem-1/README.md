@@ -10,3 +10,6 @@ FRONT END (in progress)
 
 to run use "npm run dev" while inside the svelte-project folder.
 
+the main files we are working on rn are
+TRACE-subsytem-1/svelte-project/src/App.svelte
+TRACE-subsytem-1/svelte-project/src/stores/projects.js
