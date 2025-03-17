@@ -98,6 +98,22 @@ def join_project_tx(tx, project_id, analyst):
     result = tx.run(query, project_id=project_id, analyst=analyst)
     return result.single()
 
+# Function to insert a test object
+def insert_test_project():
+    test_project_id = "test_project_001"
+    test_lead_analyst = "test_lead"
+
+    print(f"🛠 Inserting test project {test_project_id} into the database...")
+
+    with driver.session() as session:
+        session.write_transaction(create_project_tx, test_project_id, test_lead_analyst)
+
+    print(f"✅ Test project {test_project_id} successfully inserted!")
+
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
+
+    # Insert a test project on startup
+    #insert_test_project() this is a test function to see if everything worked do not uncomment unless you need to debug
+
     app.run(debug=True)
