@@ -40,6 +40,35 @@ def close_driver():
 def health_check():
     return jsonify({"status": "Server is running!", "database": "Connected"}), 200
 
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    initials = data.get("initials")
+    is_lead = data.get("is_lead")
+
+    if not initials:
+        return jsonify({"error": "Initials required"}), 400
+
+    role = "Lead" if is_lead else "Regular"
+
+    print(f"🔑 Logging in user {initials} as {role}")
+
+    with driver.session() as session:
+        session.write_transaction(create_or_update_user, initials, role)
+
+    return jsonify({"initials": initials, "role": role}), 200
+
+def create_or_update_user(tx, initials, role):
+    query = """
+    MERGE (a:Analyst {name: $initials})
+    SET a.role = $role
+    RETURN a.name AS initials, a.role AS role
+    """
+    return tx.run(query, initials=initials, role=role).single()
+
+
 # Create Project (Lead Analyst Only)
 @app.route('/create_project', methods=['POST'])
 def create_project():
@@ -71,6 +100,42 @@ def create_project_tx(tx, project_id, lead_analyst):
     """
     result = tx.run(query, project_id=project_id, lead_analyst=lead_analyst)
     return result.single()
+
+
+@app.route('/delete_project', methods=['POST'])
+def delete_project():
+    data = request.json
+    project_id = data.get("project_id")
+    lead_analyst = data.get("lead_analyst")
+
+    if not project_id or not lead_analyst:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    print(f"🗑 Attempting to delete project {project_id} by {lead_analyst}")
+
+    with driver.session() as session:
+        # Check if the user is actually the lead analyst of this project
+        lead_check = session.read_transaction(check_lead_analyst, project_id, lead_analyst)
+
+        if not lead_check:
+            return jsonify({"error": "Only the lead analyst can delete this project"}), 403
+
+        session.write_transaction(delete_project_tx, project_id)
+    
+    print(f"✅ Project {project_id} deleted successfully!")
+    return jsonify({"message": f"Project {project_id} deleted"}), 200
+
+def check_lead_analyst(tx, project_id, lead_analyst):
+    query = """
+    MATCH (p:Project {id: $project_id})<-[:LEADS]-(a:Analyst {name: $lead_analyst})
+    RETURN COUNT(p) > 0 AS is_lead
+    """
+    result = tx.run(query, project_id=project_id, lead_analyst=lead_analyst).single()
+    return result["is_lead"]
+
+def delete_project_tx(tx, project_id):
+    query = "MATCH (p:Project {id: $project_id}) DETACH DELETE p"
+    tx.run(query, project_id=project_id)
 
 
 # Join Project (Regular Analyst)
