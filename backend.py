@@ -115,6 +115,7 @@ def insert_test_project():
 
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
+    app.run(debug=True, port=5001) 
 
     # Insert a test project on startup
     #insert_test_project() this is a test function to see if everything worked do not uncomment unless you need to debug
