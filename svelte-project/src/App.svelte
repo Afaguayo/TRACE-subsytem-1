@@ -1,83 +1,45 @@
 <script>
-	import { onMount } from 'svelte';
-	import { projects, fetchProjects, createProject, joinProject } from './stores/projects.js';
+	import { onMount } from "svelte";
+	let projects = [];
   
-	let newProjectId = '';
-	let leadAnalyst = '';
-	let joinProjectId = '';
-	let analyst = '';
+	async function fetchProjects() {
+	  const response = await fetch("http://localhost:5001/list_projects");
+	  const data = await response.json();
+	  projects = data.projects;
+	}
   
 	onMount(fetchProjects);
-  
-	async function handleCreateProject() {
-	  if (!newProjectId || !leadAnalyst) return;
-	  await createProject(newProjectId, leadAnalyst);
-	  newProjectId = '';
-	  leadAnalyst = '';
-	}
-  
-	async function handleJoinProject() {
-	  if (!joinProjectId || !analyst) return;
-	  await joinProject(joinProjectId, analyst);
-	  joinProjectId = '';
-	  analyst = '';
-	}
   </script>
   
-  <main>
-	<h1>Project Management</h1>
-  
-	<section>
-	  <h2>All Projects</h2>
-	  <button on:click={fetchProjects}>Refresh</button>
-	  <ul>
-		{#each $projects as project}
-		  <li>
-			<strong>{project.id}</strong> - Lead: {project.lead_analyst}
-			<p>Clients: {project.clients.length ? project.clients.join(', ') : 'None'}</p>
-		  </li>
-		{/each}
-	  </ul>
-	</section>
-  
-	<section>
-	  <h2>Create a New Project</h2>
-	  <input type="text" bind:value={newProjectId} placeholder="Project ID" />
-	  <input type="text" bind:value={leadAnalyst} placeholder="Lead Analyst" />
-	  <button on:click={handleCreateProject}>Create Project</button>
-	</section>
-  
-	<section>
-	  <h2>Join a Project</h2>
-	  <input type="text" bind:value={joinProjectId} placeholder="Project ID" />
-	  <input type="text" bind:value={analyst} placeholder="Your Name" />
-	  <button on:click={handleJoinProject}>Join Project</button>
-	</section>
-  </main>
-  
   <style>
-	main {
-	  max-width: 600px;
-	  margin: auto;
-	  font-family: Arial, sans-serif;
+	.tree-container {
+	  padding: 20px;
 	}
-	section {
+	.project {
 	  margin-bottom: 20px;
+	  border: 1px solid #ddd;
+	  padding: 10px;
+	  border-radius: 5px;
+	  background-color: #f9f9f9;
 	}
-	input {
-	  display: block;
-	  margin: 5px 0;
-	  padding: 8px;
+	.lead {
+	  font-weight: bold;
+	  color: #1e90ff;
 	}
-	button {
-	  padding: 8px;
-	  background: blue;
-	  color: white;
-	  border: none;
-	  cursor: pointer;
-	}
-	button:hover {
-	  background: darkblue;
+	.analyst {
+	  margin-left: 20px;
+	  color: #555;
 	}
   </style>
+  
+  <div class="tree-container">
+	{#each projects as project}
+	  <div class="project">
+		<p class="lead">📌 {project.project_id} (Lead: {project.lead_analyst})</p>
+		{#each project.regular_analysts as analyst}
+		  <p class="analyst">👤 {analyst} (Regular Analyst)</p>
+		{/each}
+	  </div>
+	{/each}
+  </div>
   
