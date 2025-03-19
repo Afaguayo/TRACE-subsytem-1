@@ -1,15 +1,16 @@
 <script>
     import { onMount } from 'svelte';
-    import { Network } from 'vis-network'; //For tree graph display
-    import { DataSet } from 'vis-data'; //For tree graph display
+    import { Network } from 'vis-network';
+    import { DataSet } from 'vis-data';
   
     let treeData = {}; 
     let container; 
   
     async function fetchTree() {
         try {
+            console.log("Fetching tree data...");
             const response = await fetch("http://127.0.0.1:5001/api/tree", {
-                method: "POST", //Test data for proof of concept
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     urls: [
@@ -22,13 +23,20 @@
             });
   
             treeData = await response.json();
-            createGraph(treeData);
+            console.log("Tree Data:", treeData);
+  
+            const rootDomain = extractDomain("https://example.com/");
+            createGraph(treeData, rootDomain);
         } catch (error) {
             console.error("Error fetching tree:", error);
         }
     }
   
-    function createGraph(data) {
+    function extractDomain(url) {
+        return new URL(url).hostname; // Extracts "example.com"
+    }
+  
+    function createGraph(data, rootDomain) {
         if (!container) {
             console.error("Container not found!");
             return;
@@ -37,7 +45,7 @@
         let nodes = [];
         let edges = [];
         let nodeId = 1;
-        let nodeMap = { "index": nodeId }; // Map names to unique IDs
+        let nodeMap = { "index": nodeId }; 
   
         function processTree(obj, parentId) {
             Object.entries(obj).forEach(([key, value]) => {
@@ -55,7 +63,8 @@
             });
         }
   
-        nodes.push({ id: 1, label: "Root" });
+        // Set the root node to the domain name
+        nodes.push({ id: 1, label: rootDomain });
         processTree(data, 1);
   
         const networkData = {
@@ -66,7 +75,7 @@
         const options = {
             layout: {
                 hierarchical: {
-                    direction: "UD", // Top to bottom
+                    direction: "UD", 
                     sortMethod: "directed",
                 }
             },
