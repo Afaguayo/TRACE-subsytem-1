@@ -4,6 +4,7 @@ from neo4j import GraphDatabase
 import os
 import atexit
 from dotenv import load_dotenv
+import requests #request library for fetching
 
 # Load environment variables
 load_dotenv()
@@ -182,6 +183,24 @@ def list_projects():
     except Exception as e:
         print(f"❌ Error fetching projects: {e}")
         return jsonify({"error": str(e)}), 500
+
+@app.route('/proxy', methods=['GET']) #Creates the endpoint at /proxy, only takes in GET
+def proxy_request():
+    external_url = request.args.get("url") #Gets URL from the request
+    
+    #If its empty, say so
+    if not external_url:
+        return jsonify({"error": "Missing URL parameter"}), 400
+
+    try:
+        #Obtains content from the requested URL
+        response = requests.get(external_url, headers={"User-Agent": "Mozilla/5.0"})
+        return response.text  # Return raw HTML or JSON data
+
+    #Logs any request errors
+    except requests.exceptions.RequestException as e:
+        print(f"Proxy request error: {e}")
+        return jsonify({"error": "Failed to fetch data from the requested URL"}), 500
 
 def list_projects_tx(tx):
     query = """
