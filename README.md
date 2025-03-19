@@ -6,7 +6,22 @@ pip install flask
 pip install flask flask-cors neo4j python-dotenv
 Then run the python file "backend.py"
 
+### Dependencies for Tree Graph
+pip install vis-network
+pip install vis-data
 
+Requires two terminal windows.
+Ensure that the Python backend is running in one terminal window:
+python backend.py
+
+In the ~/svelte-project/ directory run the following command in another terminal window:
+npm install
+
+Then run:
+npm run dev
+The terminal will display the web address for the webpage, by default it should be localhost:5173
+
+Navigate to "localhost:5173/treegraph" in the browser.
 
 FRONT END (in progress)
 
