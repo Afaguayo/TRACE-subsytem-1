@@ -4,13 +4,18 @@ from neo4j import GraphDatabase
 import os
 import atexit
 from dotenv import load_dotenv
+from urllib.parse import urlparse #Used for parsing URLs for tree graph
+
 
 # Load environment variables
 load_dotenv()
 
 # Flask App Setup
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
+#resources={r"/*": {origins": "*"}}) to enable cross origin resource sharing for the tree graph
+#otherwise it will not display
+
 
 # Validate environment variables
 URI = os.getenv("NEO4J_URI")
@@ -191,6 +196,50 @@ def list_projects_tx(tx):
     """
     result = tx.run(query)
     return [record.data() for record in result]
+
+# Tree Graph
+
+def build_tree(urls):
+    tree = {}
+
+    for url in urls:
+        parsed = urlparse(url)
+        print(f"Processing URL: {url}, Path: {parsed.path}")  # Debugging print
+
+        path_parts = parsed.path.strip("/").split("/")
+        
+        # Handle root path explicitly
+        if parsed.path == "/":
+            path_parts = ["index"]  # or use "root" instead of "index"
+        
+        node = tree
+        for part in path_parts:
+            if part not in node:
+                node[part] = {}
+            node = node[part]
+
+    return tree
+
+
+@app.route('/api/tree', methods=['POST'])
+def generate_tree():
+    print("Raw Data:", request.data)  # Debugging: Print raw request data
+    print("Content-Type:", request.content_type)  # Debugging: Print Content-Type
+    
+    if request.content_type != "application/json":
+        return jsonify({"error": "Invalid Content-Type"}), 415
+
+    data = request.get_json()
+    print(request.json)
+
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    urls = data.get("urls", [])
+    tree = build_tree(urls)
+    return jsonify(tree)
+
+# End Tree Graph
 
 # Start Flask Server
 if __name__ == '__main__':
