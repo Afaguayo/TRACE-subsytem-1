@@ -87,7 +87,7 @@
     }
   
     onMount(fetchTree);
-  </script>
-  <h1>Tree Graph</h1>
+</script>
+  <h1>Tree Graphhhhhhhhhhhhhhhhhhhhhhh</h1>
   <div id="tree-graph" bind:this={container} style="width: 100%; height: 500px; border: 1px solid black;"></div>
   
