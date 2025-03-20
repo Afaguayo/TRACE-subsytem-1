@@ -5,6 +5,8 @@ import os
 import atexit
 from dotenv import load_dotenv
 import requests
+from urllib.parse import urlparse #Used for parsing URLs for tree graph
+
 
 # Load environment variables
 load_dotenv()
@@ -106,7 +108,7 @@ def check_project_locked(tx, project_id):
     """
     result = tx.run(query, project_id=project_id).single()
     return result["locked"]
-
+  
 # Check if analyst is lead for the project (case-insensitive)
 def check_lead_analyst(tx, project_id, lead_analyst):
     query = """
@@ -116,7 +118,7 @@ def check_lead_analyst(tx, project_id, lead_analyst):
     """
     result = tx.run(query, project_id=project_id, lead_analyst=lead_analyst).single()
     return result["is_lead"]
-
+  
 # Delete Project (Lead Only; allowed only if unlocked)
 @app.route('/delete_project', methods=['POST'])
 def delete_project():
@@ -299,6 +301,49 @@ def proxy_request():
     except requests.exceptions.RequestException as e:
         print(f"Proxy request error: {e}")
         return jsonify({"error": "Failed to fetch data from the requested URL"}), 500
+# Tree Graph
+
+def build_tree(urls):
+    tree = {}
+
+    for url in urls:
+        parsed = urlparse(url)
+        print(f"Processing URL: {url}, Path: {parsed.path}")  # Debugging print
+
+        path_parts = parsed.path.strip("/").split("/")
+        
+        # Handle root path explicitly
+        if parsed.path == "/":
+            path_parts = ["index"]  # or use "root" instead of "index"
+        
+        node = tree
+        for part in path_parts:
+            if part not in node:
+                node[part] = {}
+            node = node[part]
+
+    return tree
+
+
+@app.route('/api/tree', methods=['POST'])
+def generate_tree():
+    print("Raw Data:", request.data)  # Debugging: Print raw request data
+    print("Content-Type:", request.content_type)  # Debugging: Print Content-Type
+    
+    if request.content_type != "application/json":
+        return jsonify({"error": "Invalid Content-Type"}), 415
+
+    data = request.get_json()
+    print(request.json)
+
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    urls = data.get("urls", [])
+    tree = build_tree(urls)
+    return jsonify(tree)
+
+# End Tree Graph
 
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
