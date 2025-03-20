@@ -15,9 +15,10 @@
                 body: JSON.stringify({
                     urls: [
                         "https://example.com/",
-                        "https://example.com/about",
-                        "https://example.com/blog/post1",
-                        "https://example.com/blog/post2"
+                        "https://example.com/about.html",
+                        "https://example.com/subdir/post1",
+                        "https://example.com/subdir/post2",
+                        "https://example.com/subdir/subdir2/post1"
                     ]
                 })
             });

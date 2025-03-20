@@ -1,6 +1,19 @@
 {
   "dependencies": {
     "@sveltejs/adapter-auto": "^4.0.0",
-    "@sveltejs/kit": "^2.20.1"
-  }
+    "@sveltejs/kit": "^2.20.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2"
+  },
+  "name": "trace-subsytem-1",
+  "description": "BACKEND\r you will need to use this command\r pip install flask\r pip install flask flask-cors neo4j python-dotenv\r Then run the python file \"backend.py\"",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
