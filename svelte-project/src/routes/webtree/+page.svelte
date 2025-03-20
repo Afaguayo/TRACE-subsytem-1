@@ -2,9 +2,17 @@
     import { onMount } from 'svelte';
     import { Network } from 'vis-network';
     import { DataSet } from 'vis-data';
+    import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
   
     let treeData = {}; 
     let container; 
+    let projectId = "";
+    
+    onMount(() => {
+      const urlParams = new URLSearchParams($page.url.search);
+      projectId = urlParams.get("projectId") || "Unknown";
+    });
   
     async function fetchTree() {
         try {
@@ -87,7 +95,31 @@
     }
   
     onMount(fetchTree);
-  </script>
+
+    function navigateToDashboard() {
+      goto(`/projectDashboard?projectId=${projectId}`);
+    }
+</script>
+<style>
+.button-back {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    background-color: #d61515;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+.button-back:hover {
+    background-color: #c93939;
+}
+</style>
+
   <h1>Tree Graph</h1>
+  <!-- <p>Project ID: {projectId}</p> -->
   <div id="tree-graph" bind:this={container} style="width: 100%; height: 500px; border: 1px solid black;"></div>
+  <button on:click={navigateToDashboard} class="button-back"> Dashboard </button>
+
+
   

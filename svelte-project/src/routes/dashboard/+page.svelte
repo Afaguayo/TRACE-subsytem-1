@@ -242,6 +242,19 @@
     color: #d9534f;
     margin-left: 10px;
   }
+  .button-logout {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    background-color: #d61515;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  .button-logout:hover {
+    background-color: #c93939;
+  }
 </style>
   
 <div class="container">
@@ -259,7 +272,7 @@
   {:else}
     <!-- User Info & Logout -->
     <p>Welcome, <span class="lead">{user.initials}</span> ({user.role})!</p>
-    <button on:click={logout}>Logout</button>
+    <button on:click={logout} class="button-logout">Logout</button>
   
     <!-- Project Creation (Only for Lead Analysts) -->
     {#if user.role === "Lead"}
