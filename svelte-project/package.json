@@ -7,7 +7,9 @@
   },
   "dependencies": {
     "@sveltejs/kit": "^1.0.0",
-    "svelte": "^3.0.0"
+    "svelte": "^3.0.0",
+    "vis-data": "^7.1.9",
+    "vis-network": "^9.1.9"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^1.0.3",
